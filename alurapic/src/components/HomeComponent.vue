@@ -1,8 +1,11 @@
 <template>
   <div class="main-container">
-    <h1 class="main-title">
+    <h1 class="center">
       {{ title }}
     </h1>
+    <p class="center">
+      {{ message }}
+    </p>
     <input
       type="search"
       class="filter"
@@ -14,16 +17,31 @@
         :key="picture.url"
         class="pictures-list-item"
       >
-        <picture-container :picture-title="picture.titulo">
+        <picture-container 
+          v-my-transform.animate="15"
+          :picture-title="picture.titulo"
+        >
           <responsive-picture 
             :url="picture.url"
             :title="picture.titulo"
           />
+          <router-link
+            :to="{ 
+              name: 'edit',
+              params: { id: picture._id }
+            }"
+          >
+            <generic-button 
+              label="Edit"
+              type="button"
+              btn-style="regular"
+            />
+          </router-link>
           <generic-button 
             label="Remove"
             type="button"
             :confirmation="false"
-            btn-style="regular"
+            btn-style="danger"
             @activate-button="remove(picture)"
           />
         </picture-container>
@@ -50,6 +68,7 @@ export default {
       title: "Alurapic",
       pictures: [],
       filter: '',
+      message: '',
     };
   },
 
@@ -70,7 +89,17 @@ export default {
 
   methods: {
     remove(picture) {
-      alert(picture.titulo + 'picture has been removed succesfully!')
+      axios.delete(`http://localhost:3000/v1/fotos/${picture._id}`)
+        .then(() => {
+          let index = this.pictures.indexOf(picture);
+          this.pictures.splice(index, 1);
+          this.message = "Picture deleted successfully!";
+
+        })
+        .catch((err) => {
+          console.log(err.message)
+          this.message = "Error!"
+        });
     }
   },
 
@@ -78,7 +107,7 @@ export default {
 };
 </script>
 <style>
-  .main-title {
+  .center {
       text-align: center;
     }
 
